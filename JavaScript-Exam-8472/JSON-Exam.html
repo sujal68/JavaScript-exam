@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add-data Exam</title>
+</head>
+<body>
+    <form>
+        <table>
+            <td><input type="number" hidden id="editno"></td>
+            <tr>
+                <td>Products search: </td>
+                <td><input type="text" id="searchero" onkeyup="Search()" placeholder="Search"></td>
+            </tr>
+            <tr>
+                <td>Upload Products Img: </td>
+                <td><input type="file" id="image"></td>
+            </tr>
+            <tr>
+                <td>Enter Products Name: </td>
+                <td><input type="text" id="name"></td>
+            </tr>
+            <tr>
+                <td>Enter Products Price: </td>
+                <td><input type="text" id="price"></td>
+            </tr>
+            <tr>
+                <td><input type="button" id="updatebtn" onclick="AddToData()" value="Add Data"></td>
+            </tr>
+        </table>
+    </form>
+    <div id="display"></div>
+</body>
+   <script>
+
+    var products =[ ]
+
+    function AddToData(){
+
+        var image= document.getElementById('image').files[0].name;
+        var name = document.getElementById('name').value;
+        var price = document.getElementById('price').value;
+        var editno = document.getElementById('editno').value;
+
+        if (editno) {
+            for(var i = 0 ; i < products.length ; i++){
+                if (products[i]['no'] == parseInt(editno)) {
+                    products[i]['image'] = image;
+                    products[i]['name'] = name;
+                    products[i]['price'] = price;
+                    
+                    document.getElementById('editno').value='';
+                    document.getElementById('updatebtn').value="Add To Data";
+                }
+            }
+        } else {
+            var addata ={
+            image : image,
+            name : name,
+            price : price,
+            no : Math.round(Math.random()*100)
+        }
+        products.push(addata);
+        }
+
+        var Product = JSON.stringify(products);
+        localStorage.setItem('MYDATA' , Product);
+
+        document.getElementById('image').value='';
+        document.getElementById('name').value='';
+        document.getElementById('price').value='';
+        document.getElementById('editno').value='';
+        ViewData();
+    }
+
+    function ViewData(){
+        var vdata = localStorage.getItem('MYDATA');
+        var view = JSON.parse(vdata);
+
+        var data = "<div class='card-section'>"
+            for(var i = 0 ; i < view.length ; i++){
+                data += `<div class='card-item' style='border:1px solid black; display:inline-block; margin-left:10px; margin-top:10px; padding:10px;'>`
+                data += `<img src='images/${view[i]['image']}'>`
+                data += `<div class='card-content'>`
+                data += `<h2>${view[i]['name']}</h2>`
+                data += `<p>₹ ${view[i]['price']}</p>`
+                data += `</div>`
+                data += `<div>`
+                data += `<a href='Javascript:DeleteData(${view[i]['no']})'><button>Delete</button></a>`
+                data += `<a href='Javascript:UpdateData(${view[i]['no']})'><button style='margin-left:10px;'>Update</button></a>`
+                data += `</div>`
+                data += `</div>`
+            }
+            data += `</div>`
+            document.getElementById('display').innerHTML=data;
+    }
+    ViewData();
+
+    function DeleteData(no){
+        var ddata = localStorage.getItem('MYDATA');
+        var delet = JSON.parse(ddata);
+
+        for(var i = 0 ; i < delet.length ; i++){
+            if (delet[i]['no'] == no) {
+                delet.splice(i,1);
+            }
+        }
+        localStorage.setItem('MYDATA' , JSON.stringify(delet));
+        ViewData();
+    }
+
+    function UpdateData(no){
+        var udata = localStorage.getItem('MYDATA');
+        var updat = JSON.parse(udata);
+
+        for(var i = 0 ; i < updat.length ; i++){
+            if (updat[i]['no'] == no) {
+                document.getElementById('name').value=updat[i]['name'];
+                document.getElementById('price').value=updat[i]['price'];
+                document.getElementById('editno').value= updat[i]['no'];
+                document.getElementById('updatebtn').value = 'Update Data';
+            }
+        }
+    }
+
+    function Search() {
+    var search = document.getElementById("searchero").value;
+    var ser = localStorage.getItem('MYDATA');
+    var searcha = JSON.parse(ser);
+
+    var data = "<div class='card-section'>"
+      searcha.forEach((sp, i) => {
+        if (sp.name.match(search)) {
+        data += `<div class='card-item' style='border:1px solid black; display:inline-block; margin-left:10px; margin-top:10px; padding:10px;'>`
+        data += `<img src='images/${searcha[i]['image']}'>`
+        data += `<div class='card-content'>`
+        data += `<h2>${searcha[i]['name']}</h2>`
+        data += `<p>₹ ${searcha[i]['price']}</p>`
+        data += `</div>`
+        data += `<div>`
+        data += `<a href='Javascript:DeleteData(${searcha[i]['no']})'><button>Delete</button></a>`
+        data += `<a href='Javascript:UpdateData(${searcha[i]['no']})'><button style='margin-left:10px;'>Update</button></a>`
+        data += `</div>`
+        data += `</div>`
+        }
+    });
+
+    data += "</div>";
+    document.getElementById("display").innerHTML = data;
+    }
+
+   </script>
+</html>
